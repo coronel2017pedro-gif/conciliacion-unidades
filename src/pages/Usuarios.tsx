@@ -15,7 +15,7 @@ async function admin(body: object): Promise<any> {
     try { const r = (error as any).context; if (r?.json) { const j = await r.json(); if (j?.error) detalle = j.error } } catch { /* sin cuerpo */ }
     throw new Error(`No se pudo completar (${detalle}). Revisa que la función esté publicada con el nombre «${FUNCION}».`)
   }
-  if (data?.error) throw new Error(data.error)
+  if (data?.error) throw new Error(data.error === 'Acción desconocida' ? 'La función publicada en Supabase es una versión anterior: pega el código nuevo de admin-usuarios (index.ts) y dale Deploy.' : data.error)
   return data
 }
 /** Activar/desactivar, plaza y nombre: directo en la base de datos (no dependen de la función). */
@@ -84,7 +84,7 @@ export default function Usuarios({ perfil }: { perfil: Profile }) {
         <div className="scroll"><table className="cards">
           <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Plaza</th><th>Estado</th><th></th></tr></thead>
           <tbody>{visibles.map(u => (
-            <tr key={u.id}><td className="titulo"><button className="link" disabled={busy} onClick={() => { const n = prompt('Nuevo nombre', u.nombre); if (n) run(() => rpc('admin_set_nombre', { p_id: u.id, p_nombre: n }), 'Nombre actualizado.') }}><b>{u.nombre}</b> ✎</button></td><td data-label="Correo">{u.email}</td><td data-label="Rol">{u.rol}</td>
+            <tr key={u.id}><td className="titulo"><button className="link" disabled={busy} onClick={() => { const n = prompt('Nuevo nombre', u.nombre); if (n) run(() => rpc('admin_set_nombre', { p_id: u.id, p_nombre: n }), 'Nombre actualizado.') }}><b>{u.nombre}</b> ✎</button></td><td data-label="Correo"><button className="link" disabled={busy} onClick={() => { const c = prompt(`Nuevo correo para ${u.nombre} (será su usuario para entrar)`, u.email ?? ''); if (c && c.trim().toLowerCase() !== (u.email ?? '').toLowerCase()) run(() => admin({ accion: 'correo', id: u.id, email: c }), 'Correo actualizado. Ya entra con el correo nuevo y la misma contraseña.') }}>{u.email} ✎</button></td><td data-label="Rol">{u.rol}</td>
               <td data-label="Plaza">{u.rol === 'dispatcher' ? <button className="link" disabled={busy} onClick={() => { const p = prompt(`Nueva plaza para ${u.nombre}`, u.plaza ?? ''); if (p) run(() => rpc('admin_set_plaza', { p_id: u.id, p_plaza: p }), 'Plaza actualizada.') }}>{u.plaza ?? '—'} ✎</button> : '—'}</td>
               <td data-label="Estado">{u.activo === false ? <span className="pill bad">desactivado</span> : <span className="pill">activo</span>}</td>
               <td className="acciones row">

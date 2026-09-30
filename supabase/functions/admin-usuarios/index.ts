@@ -48,6 +48,17 @@ Deno.serve(async (req) => {
       await log('cambiar_password', obj.email ?? obj.id, { nombre: obj.nombre })
       return json({ ok: true })
     }
+    if (b.accion === 'correo') {
+      const nuevo = String(b.email ?? '').trim().toLowerCase()
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(nuevo)) return json({ error: 'Escribe un correo válido' }, 400)
+      if (nuevo === (obj.email ?? '').toLowerCase()) return json({ error: 'Ese ya es su correo' }, 400)
+      const { error } = await admin.auth.admin.updateUserById(obj.id, { email: nuevo, email_confirm: true })
+      if (error) return json({ error: /already|registered|exists/i.test(error.message) ? 'Ese correo ya lo usa otro usuario' : error.message }, 400)
+      const { error: e2 } = await admin.from('profiles').update({ email: nuevo }).eq('id', obj.id)
+      if (e2) return json({ error: e2.message }, 400)
+      await log('cambiar_correo', nuevo, { nombre: obj.nombre, antes: obj.email, despues: nuevo })
+      return json({ ok: true })
+    }
     if (b.accion === 'activo') {
       if (obj.id === yo.id) return json({ error: 'No puedes desactivarte a ti mismo' }, 400)
       const { error } = await admin.auth.admin.updateUserById(obj.id, { ban_duration: b.activo ? 'none' : '876000h' })
