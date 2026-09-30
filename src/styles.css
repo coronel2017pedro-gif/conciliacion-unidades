@@ -1,0 +1,65 @@
+:root { --bg:#f5f6f8; --card:#fff; --ink:#1c2430; --mut:#667085; --line:#e3e7ee; --brand:#1d4ed8; --ok:#15803d; --bad:#b91c1c; --warn:#b45309; }
+* { box-sizing: border-box } body { margin:0; font:14px/1.45 system-ui,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--ink) }
+header { display:flex; align-items:center; gap:16px; padding:10px 20px; background:#0f172a; color:#fff; flex-wrap:wrap }
+header h1 { font-size:16px; margin:0; font-weight:600 } header .sp { flex:1 } header small { opacity:.75 }
+nav { display:flex; gap:4px; flex-wrap:wrap } nav button { background:transparent; color:#cbd5e1; border:0; padding:7px 12px; border-radius:6px; cursor:pointer; font:inherit }
+nav button.on { background:#1e293b; color:#fff } main { max-width:1200px; margin:18px auto; padding:0 16px }
+.card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; margin-bottom:16px }
+h2 { margin:0 0 10px; font-size:16px } h3 { margin:14px 0 6px; font-size:14px }
+label { display:block; font-size:12px; color:var(--mut); margin-bottom:3px }
+input,select,textarea { font:inherit; padding:7px 9px; border:1px solid #cbd2dd; border-radius:6px; width:100%; background:#fff }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; align-items:end }
+button.btn { background:var(--brand); color:#fff; border:0; padding:8px 14px; border-radius:6px; cursor:pointer; font:inherit } button.btn:disabled { opacity:.5; cursor:default }
+button.sec { background:#fff; color:var(--ink); border:1px solid #cbd2dd } button.link { background:none; border:0; color:var(--brand); cursor:pointer; padding:0; font:inherit }
+table { width:100%; border-collapse:collapse } th,td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top }
+th { font-size:12px; color:var(--mut); font-weight:600; white-space:nowrap } td.n,th.n { text-align:right; font-variant-numeric:tabular-nums }
+.scroll { overflow:auto; max-height:560px } .mut { color:var(--mut) } .bad { color:var(--bad) } .ok { color:var(--ok) } .warn { color:var(--warn) }
+.pill { display:inline-block; padding:1px 8px; border-radius:99px; font-size:12px; background:#eef1f6 } .pill.warn { background:#fef3c7; color:var(--warn) } .pill.bad { background:#fee2e2; color:var(--bad) }
+.alert { padding:10px 12px; border-radius:8px; margin:8px 0; background:#fff7ed; border:1px solid #fed7aa; color:#7c2d12 } .alert.err { background:#fef2f2; border-color:#fecaca; color:#7f1d1d } .alert.okk { background:#f0fdf4; border-color:#bbf7d0; color:#14532d }
+.row { display:flex; gap:10px; align-items:center; flex-wrap:wrap }
+.kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px } .kpi { border:1px solid var(--line); border-radius:8px; padding:10px 12px; background:#fff } .kpi b { display:block; font-size:20px }
+.chips { display:flex; flex-wrap:wrap; gap:3px; margin-top:6px } .chip { font-size:11px; padding:2px 5px; border-radius:4px; background:#eef1f6; cursor:default }
+.chip.opero { background:#dcfce7 } .chip.sin_ruta { background:#fef3c7 } .chip.incidencia,.chip.duplicado,.chip.antes_entrega { background:#fecaca } .chip.sin_datos { background:#e5e7eb }
+.login { max-width:340px; margin:12vh auto } 
+
+/* ================= Celular ================= */
+@media (max-width:700px){
+  body { font-size:15px }
+  header { padding:10px 12px; gap:8px 10px; position:sticky; top:0; z-index:5; padding-top:max(10px, env(safe-area-inset-top)) }
+  header h1 { font-size:15px; flex:1 1 auto }
+  header .sp { display:none }
+  header small { order:3; flex:1 1 100%; font-size:12px }
+  header > button.btn { order:2; width:auto; min-height:38px; padding:6px 14px; font-size:14px }
+  nav { order:4; flex:1 1 100%; flex-wrap:nowrap; overflow-x:auto; gap:6px; margin:0 -12px; padding:2px 12px; -webkit-overflow-scrolling:touch; scrollbar-width:none }
+  nav::-webkit-scrollbar { display:none }
+  nav button { white-space:nowrap; padding:9px 14px; background:#1e293b; flex:0 0 auto }
+  nav button.on { background:var(--brand) }
+  main { margin:12px auto; padding:0 10px max(24px, env(safe-area-inset-bottom)) }
+  .card { padding:14px; border-radius:12px }
+  h2 { font-size:17px }
+  /* controles cómodos para el dedo (16px evita el zoom automático en iPhone) */
+  input, select, textarea { font-size:16px; min-height:46px; padding:10px 12px; border-radius:10px }
+  input[type=checkbox] { min-height:0; width:22px !important; height:22px }
+  label { font-size:13px; margin-bottom:4px }
+  .grid { grid-template-columns:1fr; gap:14px }
+  button.btn { width:100%; min-height:48px; font-size:16px; border-radius:10px }
+  .login { margin:8vh auto; max-width:none }
+  .kpis { grid-template-columns:1fr 1fr } .kpi b { font-size:17px }
+
+  /* Tablas de tarjetas: cada renglón se vuelve una tarjeta con etiqueta: valor */
+  table.cards, table.cards tbody, table.cards tr, table.cards td { display:block; width:100% }
+  table.cards thead { display:none }
+  table.cards tr { border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-bottom:10px; background:#fff }
+  table.cards td { border:0; padding:4px 0; display:flex; justify-content:space-between; gap:12px; text-align:right }
+  table.cards td::before { content:attr(data-label); color:var(--mut); font-size:12px; text-align:left; flex:0 0 38%; padding-top:2px }
+  table.cards td.titulo { font-size:17px; padding-bottom:6px; border-bottom:1px solid var(--line); margin-bottom:4px; justify-content:space-between; align-items:center }
+  table.cards td.titulo::before { content:none }
+  table.cards td.acciones { flex-direction:column; gap:8px; padding-top:8px; text-align:center }
+  table.cards td.acciones::before { content:none }
+  table.cards td.acciones:empty { display:none }
+  table.cards td:empty:not(.acciones) { display:none }
+  table.cards td.acciones button { width:100%; min-height:46px; border:1px solid var(--brand); border-radius:10px; background:#eff4ff; font-weight:600 }
+  table.cards td.acciones button.bad { border-color:#fecaca; background:#fef2f2; color:var(--bad) }
+  .scroll { max-height:none; overflow:visible }
+  .scroll:has(table.cards) { overflow:visible }
+}
