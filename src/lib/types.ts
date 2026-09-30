@@ -54,3 +54,9 @@ export interface PrefacturaML {
   ultima_modificacion?: string | null; nro_comprobante?: string | null; fecha_carga?: string | null
   subtotal?: number | null; total_con_iva?: number | null; id_sap?: string | null
 }
+
+/** Alta de unidad o cambio de plaza (lo registra el sistema al usar registrar_unidad). */
+export interface Movimiento {
+  id: number; creado_en: string; placa: string; tipo: 'alta' | 'cambio_plaza' | 'reactivacion'
+  plaza_origen: string | null; plaza_destino: string | null; usuario_nombre?: string | null
+}

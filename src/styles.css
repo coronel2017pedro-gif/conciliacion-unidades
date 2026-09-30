@@ -63,3 +63,11 @@ th { font-size:12px; color:var(--mut); font-weight:600; white-space:nowrap } td.
   .scroll { max-height:none; overflow:visible }
   .scroll:has(table.cards) { overflow:visible }
 }
+
+/* Semáforo de movimientos de unidades */
+.sem { display:inline-block; width:12px; height:12px; border-radius:50%; background:#9ca3af; vertical-align:middle; flex:none }
+.sem.ok { background:#16a34a } .sem.bad { background:#dc2626 } .sem.warn { background:#f59e0b }
+.movs { display:flex; flex-direction:column; gap:6px; max-height:320px; overflow:auto }
+.mov { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:6px 8px; border-radius:8px; background:#f8fafc }
+.mov small { margin-left:auto }
+.dot { display:inline-block; min-width:18px; padding:0 5px; margin-left:6px; border-radius:99px; background:#dc2626; color:#fff; font-size:11px; line-height:18px; text-align:center }

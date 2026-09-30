@@ -49,6 +49,7 @@ function App() {
   const [session, setSession] = useState<Session | null>(null)
   const [perfil, setPerfil] = useState<Profile | null | undefined>(undefined)
   const [tab, setTab] = useState('incidencias')
+  const [nuevos, setNuevos] = useState(0)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session))
@@ -62,6 +63,14 @@ function App() {
       .then(({ data }) => { if (vivo) setPerfil((data as Profile) ?? null) }, () => { if (vivo) setPerfil(null) })
     return () => { vivo = false }
   }, [session?.user.id])
+
+  // Aviso (punto rojo) de altas y cambios de plaza de los últimos 3 días
+  useEffect(() => {
+    if (!perfil || perfil.activo === false) { setNuevos(0); return }
+    const desde = new Date(Date.now() - 3 * 86400000).toISOString()
+    supabase.from('movimientos_unidades').select('id', { count: 'exact', head: true }).gte('creado_en', desde)
+      .then(({ count, error }) => setNuevos(error ? 0 : count ?? 0), () => setNuevos(0))
+  }, [perfil?.id, tab])
 
   if (!session) return <Login />
   if (perfil === undefined) return <main>Cargando…</main>
@@ -79,19 +88,19 @@ function App() {
   const master = perfil.rol === 'master'
   const tabs = admin
     ? [['incidencias', 'Incidencias'], ['unidades', 'Unidades'], ['facturas', 'Facturas'], ['rutas', 'Rutas'], ['conciliacion', 'Conciliación'], ['usuarios', 'Usuarios'], ...(master ? [['bitacora', 'Bitácora']] : [])]
-    : [['incidencias', 'Incidencias de mis unidades']]
+    : [['incidencias', 'Incidencias de mis unidades'], ['unidades', 'Mis unidades']]
   return (
     <>
       <header>
         <h1>Conciliación de unidades</h1>
-        <nav>{tabs.map(([k, l]) => <button key={k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{l}</button>)}</nav>
+        <nav>{tabs.map(([k, l]) => <button key={k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{l}{k === 'unidades' && nuevos > 0 && <span className="dot">{nuevos}</span>}</button>)}</nav>
         <span className="sp" />
         <small>{perfil.nombre} · {perfil.rol}{perfil.plaza ? ` · ${perfil.plaza}` : ''}</small>
         <button className="btn sec" onClick={() => supabase.auth.signOut()}>Salir</button>
       </header>
       <main>
         {tab === 'incidencias' && <Incidencias perfil={perfil} />}
-        {admin && tab === 'unidades' && <Unidades />}
+        {tab === 'unidades' && <Unidades perfil={perfil} />}
         {admin && tab === 'facturas' && <Facturas />}
         {admin && tab === 'rutas' && <Rutas />}
         {admin && tab === 'conciliacion' && <Conciliacion />}
