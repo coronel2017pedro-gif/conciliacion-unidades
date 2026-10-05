@@ -60,6 +60,10 @@ th { font-size:12px; color:var(--mut); font-weight:600; white-space:nowrap } td.
   table.cards td:empty:not(.acciones) { display:none }
   table.cards td.acciones button { width:100%; min-height:46px; border:1px solid var(--brand); border-radius:10px; background:#eff4ff; font-weight:600 }
   table.cards td.acciones button.bad { border-color:#fecaca; background:#fef2f2; color:var(--bad) }
+  table.cards td select { width:100% !important; min-width:0; flex:1 1 auto } table.cards td { min-width:0 }
+  table.cards td.det { display:block; text-align:left } table.cards td.det::before { content:none }
+  table.cards td.titulo { flex-wrap:wrap }
+  header h1 { word-break:break-word }
   .scroll { max-height:none; overflow:visible }
   .scroll:has(table.cards) { overflow:visible }
 }

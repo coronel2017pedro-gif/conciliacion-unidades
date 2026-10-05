@@ -88,14 +88,14 @@ export default function Facturas() {
 
       <div className="card">
         <h2>Facturas cargadas</h2>
-        <table><thead><tr><th>Folio</th><th>Fecha</th><th className="n">Conceptos</th><th className="n">Subtotal</th><th className="n">Total</th><th>Estatus</th></tr></thead>
+        <div className="scroll"><table className="cards"><thead><tr><th>Folio</th><th>Fecha</th><th className="n">Conceptos</th><th className="n">Subtotal</th><th className="n">Total</th><th>Estatus</th></tr></thead>
           <tbody>{facts.map(f => (
-            <tr key={f.folio}><td><b>{f.folio}</b></td><td>{f.fecha}</td><td className="n">{lineas.filter(l => l.factura_folio === f.folio).length}</td>
-              <td className="n">{fmt(f.subtotal)}</td><td className="n">{fmt(f.total)}</td>
-              <td><select style={{ width: 'auto' }} value={f.estatus} onChange={e => estatus(f.folio, e.target.value, e.target.value === 'vigente' ? undefined : f.sustituida_por ?? undefined)}>
+            <tr key={f.folio}><td className="titulo"><b>Factura {f.folio}</b></td><td data-label="Fecha">{f.fecha}</td><td className="n" data-label="Conceptos">{lineas.filter(l => l.factura_folio === f.folio).length}</td>
+              <td className="n" data-label="Subtotal">{fmt(f.subtotal)}</td><td className="n" data-label="Total">{fmt(f.total)}</td>
+              <td data-label="Estatus"><select style={{ width: 'auto' }} value={f.estatus} onChange={e => estatus(f.folio, e.target.value, e.target.value === 'vigente' ? undefined : f.sustituida_por ?? undefined)}>
                 <option value="vigente">Vigente</option><option value="sustituida">Sustituida (re-facturada)</option><option value="cancelada">Cancelada</option></select>
                 {f.sustituida_por && <span className="mut"> → {f.sustituida_por}</span>}</td></tr>
-          ))}</tbody></table>
+          ))}</tbody></table></div>
       </div>
     </>
   )

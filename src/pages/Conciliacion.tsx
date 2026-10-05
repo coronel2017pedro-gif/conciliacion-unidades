@@ -78,22 +78,22 @@ export default function Conciliacion() {
 
       <div className="card">
         <h2>Por factura</h2>
-        <table><thead><tr><th>Factura</th><th className="n">Conceptos</th><th className="n">Subtotal</th><th className="n">Días a descontar</th><th className="n">Descuento</th><th className="n">Por justificar</th></tr></thead>
-          <tbody>{resumen.map(f => <tr key={f.folio}><td><b>{f.folio}</b></td><td className="n">{f.lineas}</td><td className="n">{fmt(f.subtotal)}</td><td className="n">{f.diasDescuento}</td><td className="n bad">{fmt(f.descuento)}</td><td className="n warn">{fmt(f.porJustificar)}</td></tr>)}</tbody></table>
+        <div className="scroll"><table className="cards"><thead><tr><th>Factura</th><th className="n">Conceptos</th><th className="n">Subtotal</th><th className="n">Días a descontar</th><th className="n">Descuento</th><th className="n">Por justificar</th></tr></thead>
+          <tbody>{resumen.map(f => <tr key={f.folio}><td className="titulo"><b>Factura {f.folio}</b></td><td className="n" data-label="Conceptos">{f.lineas}</td><td className="n" data-label="Subtotal">{fmt(f.subtotal)}</td><td className="n" data-label="Días a descontar">{f.diasDescuento}</td><td className="n bad" data-label="Descuento">{fmt(f.descuento)}</td><td className="n warn" data-label="Por justificar">{fmt(f.porJustificar)}</td></tr>)}</tbody></table></div>
       </div>
 
       <div className="card">
         <h2>Por concepto ({filas.length})</h2>
-        <div className="scroll"><table>
+        <div className="scroll"><table className="cards">
           <thead><tr><th>Factura</th><th>Placa</th><th>Plaza</th><th>Periodo</th><th className="n">Fact.</th><th className="n">Operó</th><th className="n">Incid.</th><th className="n">Dup.</th><th className="n">Sin ruta</th><th className="n">Descuento</th><th>Observaciones</th></tr></thead>
           <tbody>{filas.map(r => {
             const k = `${r.linea.factura_folio}-${r.linea.linea}`
             return [
               <tr key={k} onClick={() => setAbierta(abierta === k ? null : k)} style={{ cursor: 'pointer' }}>
-                <td>{r.linea.factura_folio}</td><td><b>{r.linea.placa}</b></td><td>{r.linea.plaza}</td><td>{r.linea.inicio.slice(5)} → {r.linea.fin.slice(5)}</td>
-                <td className="n">{r.linea.dias}</td><td className="n">{r.conteo.opero}</td><td className="n">{r.conteo.incidencia + r.conteo.antes_entrega}</td><td className="n">{r.conteo.duplicado}</td><td className="n warn">{r.conteo.sin_ruta}</td>
-                <td className="n bad">{r.montoDescuento ? fmt(r.montoDescuento) : ''}</td><td className="warn">{r.banderas.join(' · ')}</td></tr>,
-              abierta === k && <tr key={k + 'd'}><td colSpan={11}><div className="chips">{r.dias.map(x => <span key={x.fecha} className={`chip ${x.estado}`} title={`${ETQ[x.estado]}${x.detalle ? ' — ' + x.detalle : ''}`}>{x.fecha.slice(8)}·{ETQ[x.estado]}</span>)}</div></td></tr>,
+                <td className="titulo"><b>{r.linea.placa}</b><span className="mut">Factura {r.linea.factura_folio}</span></td><td data-label="Plaza">{r.linea.plaza}</td><td data-label="Periodo">{r.linea.inicio.slice(5)} → {r.linea.fin.slice(5)}</td>
+                <td className="n" data-label="Facturados">{r.linea.dias}</td><td className="n" data-label="Operó">{r.conteo.opero}</td><td className="n" data-label="Incidencias">{r.conteo.incidencia + r.conteo.antes_entrega}</td><td className="n" data-label="Duplicados">{r.conteo.duplicado}</td><td className="n warn" data-label="Sin ruta">{r.conteo.sin_ruta}</td>
+                <td className="n bad" data-label="Descuento">{r.montoDescuento ? fmt(r.montoDescuento) : ''}</td><td className="warn" data-label="Observaciones">{r.banderas.join(' · ')}</td></tr>,
+              abierta === k && <tr key={k + 'd'}><td className="det" colSpan={11}><div className="chips">{r.dias.map(x => <span key={x.fecha} className={`chip ${x.estado}`} title={`${ETQ[x.estado]}${x.detalle ? ' — ' + x.detalle : ''}`}>{x.fecha.slice(8)}·{ETQ[x.estado]}</span>)}</div></td></tr>,
             ]
           })}</tbody>
         </table></div>

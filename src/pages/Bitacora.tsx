@@ -42,12 +42,12 @@ export default function Bitacora() {
         <div><button className="btn">Filtrar</button></div>
       </form>
       {err && <div className="alert err">{err}</div>}
-      <div className="scroll" style={{ maxHeight: 640, marginTop: 10 }}><table>
+      <div className="scroll" style={{ maxHeight: 640, marginTop: 10 }}><table className="cards">
         <thead><tr><th>Fecha y hora</th><th>Usuario</th><th>Acción</th><th>Módulo</th><th>Referencia</th><th></th></tr></thead>
         <tbody>{rows.map(r => [
-          <tr key={r.id}><td>{cuando(r.creado_en)}</td><td>{r.usuario_nombre ?? <span className="mut">—</span>}</td><td><span className="pill">{r.accion}</span></td><td>{r.entidad}</td><td>{r.referencia}</td>
-            <td>{r.detalle && <button className="link" onClick={() => setAbierto(abierto === r.id ? null : r.id)}>{abierto === r.id ? 'ocultar' : 'detalle'}</button>}</td></tr>,
-          abierto === r.id && <tr key={r.id + 'd'}><td colSpan={6}><pre style={{ margin: 0, whiteSpace: 'pre-wrap', fontSize: 12 }}>{JSON.stringify(r.detalle, null, 2)}</pre></td></tr>,
+          <tr key={r.id}><td className="titulo">{cuando(r.creado_en)}<span className="pill">{r.accion}</span></td><td data-label="Usuario">{r.usuario_nombre ?? <span className="mut">—</span>}</td><td data-label="Módulo">{r.entidad}</td><td data-label="Referencia" style={{ wordBreak: 'break-all' }}>{r.referencia}</td>
+            <td className="acciones">{r.detalle && <button className="link" onClick={() => setAbierto(abierto === r.id ? null : r.id)}>{abierto === r.id ? 'ocultar' : 'detalle'}</button>}</td></tr>,
+          abierto === r.id && <tr key={r.id + 'd'}><td className="det" colSpan={6}><pre style={{ margin: 0, whiteSpace: 'pre-wrap', fontSize: 12 }}>{JSON.stringify(r.detalle, null, 2)}</pre></td></tr>,
         ])}</tbody>
       </table></div>
       {hayMas && <div style={{ marginTop: 10 }}><button className="btn sec" onClick={() => cargar(rows.length, true)}>Cargar más</button></div>}
