@@ -57,6 +57,7 @@ export interface PrefacturaML {
 
 /** Alta de unidad o cambio de plaza (lo registra el sistema al usar registrar_unidad). */
 export interface Movimiento {
-  id: number; creado_en: string; placa: string; tipo: 'alta' | 'cambio_plaza' | 'reactivacion'
+  id: number; creado_en: string; placa: string; tipo: 'alta' | 'cambio_plaza' | 'reactivacion' | 'incidencia' | 'incidencia_cierre'
+  notas?: string | null
   plaza_origen: string | null; plaza_destino: string | null; usuario_nombre?: string | null
 }

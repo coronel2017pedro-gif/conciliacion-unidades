@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { fetchAll, insertarEnLotes, supabase } from '../supabase'
+import { fetchAll, supabase } from '../supabase'
 import { leerLibro, parseInventario } from '../lib/parseExcel'
 import type { Movimiento, Profile, Unidad } from '../lib/types'
 
@@ -11,6 +11,8 @@ const hace = (iso: string) => {
 
 /** Semáforo de un movimiento según quién lo ve: rojo = sale de mi plaza, verde = llega/alta en mi plaza, ámbar = vista general de conciliación. */
 function semaforo(m: Movimiento, plaza: string | null, admin: boolean) {
+  if (m.tipo === 'incidencia') return { c: admin ? 'warn' : 'bad', t: `Incidencia: ${m.notas ?? ''}` }
+  if (m.tipo === 'incidencia_cierre') return { c: 'ok', t: `Volvió a operar: ${m.notas ?? ''}` }
   if (admin) {
     if (m.tipo === 'alta') return { c: 'ok', t: `Alta nueva en ${m.plaza_destino}` }
     if (m.tipo === 'reactivacion') return { c: 'ok', t: `Reactivada en ${m.plaza_destino}` }
@@ -49,8 +51,14 @@ export default function Unidades({ perfil }: { perfil: Profile }) {
   const importar = async (file: File) => {
     try {
       const u = parseInventario(leerLibro(await file.arrayBuffer()))
-      await insertarEnLotes('unidades', u, { onConflict: 'placa' })
-      setMsg({ t: `${u.length} unidades importadas/actualizadas.`, ok: true }); cargar()
+      const filas = u.map(({ activa, ...x }) => x)
+      let r = { altas: 0, cambios_plaza: 0, reactivadas: 0, sin_cambio: 0 }
+      for (let i = 0; i < filas.length; i += 200) {
+        const { data, error } = await supabase.rpc('importar_inventario', { p_filas: filas.slice(i, i + 200) })
+        if (error) throw new Error(error.message.includes('importar_inventario') ? 'Falta ejecutar 5_movimientos_import_incidencias.sql en el SQL Editor de Supabase.' : error.message)
+        for (const k of Object.keys(r) as (keyof typeof r)[]) r[k] += (data as any)[k] ?? 0
+      }
+      setMsg({ t: `${u.length} unidades procesadas: ${r.altas} altas, ${r.cambios_plaza} cambios de plaza, ${r.reactivadas} reactivadas, ${r.sin_cambio} sin cambio. Los movimientos quedaron en el semáforo.`, ok: true }); cargar()
     } catch (e: any) { setMsg({ t: e.message }) }
   }
   const cambiar = async (placa: string, campo: Partial<Unidad>) => {
@@ -110,7 +118,7 @@ export default function Unidades({ perfil }: { perfil: Profile }) {
 
       <div className="card">
         <h2>Movimientos recientes ({recientes.length})</h2>
-        <p className="mut" style={{ marginTop: 0 }}><span className="sem ok" /> alta / llegada &nbsp; <span className="sem bad" /> baja / salida &nbsp; <span className="sem warn" /> cambio de plaza (vista general) · últimos 30 días</p>
+        <p className="mut" style={{ marginTop: 0 }}><span className="sem ok" /> alta / llegada &nbsp; <span className="sem bad" /> baja / salida / unidad parada &nbsp; <span className="sem warn" /> cambio de plaza / incidencia (vista general) · últimos 30 días</p>
         {recientes.length === 0 ? <p className="mut">Sin movimientos.</p> : (
           <div className="movs">{recientes.map(m => {
             const s = semaforo(m, perfil.plaza, admin)
@@ -122,7 +130,7 @@ export default function Unidades({ perfil }: { perfil: Profile }) {
       <div className="card">
         <h2>{admin ? 'Inventario de unidades' : `Mis unidades · ${perfil.plaza ?? ''}`} ({lista.length})</h2>
         {admin && <>
-          <p className="mut">Sube el Excel del inventario (columnas: Placa, Localidad, Marca/vehículo, Tipo, Serie, Operador responsable, Fecha entrega). Si la placa ya existe se actualiza.</p>
+          <p className="mut">Sube el Excel del inventario (columnas: Placa, Localidad, Marca/vehículo, Tipo, Serie, Operador responsable, Fecha entrega). Si la placa ya existe se actualiza (las celdas vacías no borran datos) y los altas / cambios de plaza quedan registrados en el semáforo.</p>
           <input type="file" accept=".xlsx,.xls" onChange={e => e.target.files?.[0] && importar(e.target.files[0])} />
         </>}
         <div className="scroll"><table className="cards">
@@ -131,7 +139,7 @@ export default function Unidades({ perfil }: { perfil: Profile }) {
             const m = ultimoMov.get(u.placa)
             const s = m && semaforo(m, perfil.plaza, admin)
             return (
-              <tr key={u.placa}><td className="titulo"><b>{u.placa}</b>{s && <span className={`pill ${s.c === 'ok' ? '' : s.c}`} title={s.t}>{m!.tipo === 'cambio_plaza' ? (admin ? `de ${m!.plaza_origen}` : 'llegó') : 'nueva'} · {hace(m!.creado_en)}</span>}</td>
+              <tr key={u.placa}><td className="titulo"><b>{u.placa}</b>{s && <span className={`pill ${s.c === 'ok' ? '' : s.c}`} title={s.t}>{m!.tipo === 'cambio_plaza' ? (admin ? `de ${m!.plaza_origen}` : s.c === 'bad' ? 'salió' : 'llegó') : m!.tipo === 'incidencia' ? 'incidencia' : m!.tipo === 'incidencia_cierre' ? 'operando' : 'nueva'} · {hace(m!.creado_en)}</span>}</td>
                 <td data-label="Plaza">{u.plaza}</td><td data-label="Vehículo">{u.vehiculo}</td><td data-label="Tipo">{u.tipo}</td><td data-label="Serie" className="mut">{u.serie}</td><td data-label="Operador">{u.operador}</td>
                 <td data-label="Entrega">{admin ? <input type="date" defaultValue={u.fecha_entrega ?? ''} onBlur={e => e.target.value !== (u.fecha_entrega ?? '') && cambiar(u.placa, { fecha_entrega: e.target.value || null })} /> : u.fecha_entrega}</td>
                 <td data-label="Activa">{admin ? <input type="checkbox" style={{ width: 'auto' }} checked={u.activa} onChange={e => cambiar(u.placa, { activa: e.target.checked })} /> : (u.activa ? 'Sí' : 'No')}</td></tr>
